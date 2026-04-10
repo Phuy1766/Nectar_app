@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { PRODUCTS } from '@/constants/data';
 
@@ -75,7 +76,7 @@ export default function CartScreen() {
       />
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.checkoutBtn}>
+        <TouchableOpacity style={styles.checkoutBtn} onPress={() => router.push('/checkout' as any)}>
           <Text style={styles.checkoutText}>Go to Checkout</Text>
           <View style={styles.totalBadge}>
             <Text style={styles.totalBadgeText}>${total.toFixed(2)}</Text>
