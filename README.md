@@ -10,3 +10,7 @@ MSV: 23810310347
 <img width="1170" height="2532" alt="image" src="https://github.com/user-attachments/assets/007a2489-1c8a-4211-9950-a24af2a05844" />
 <img width="1170" height="2532" alt="image" src="https://github.com/user-attachments/assets/16faf683-a8b7-4e61-b773-d5ce16b7e51f" />
 <img width="1170" height="2532" alt="image" src="https://github.com/user-attachments/assets/64ea03ce-46b9-40c0-bfb0-53b5ba605314" />
+<img width="1170" height="2532" alt="image" src="https://github.com/user-attachments/assets/613d107b-d3a9-46f5-bf06-c16f67352162" />
+<img width="1170" height="2532" alt="image" src="https://github.com/user-attachments/assets/7358343e-76b2-49f4-aa13-96f2e7d27b95" />
+<img width="1170" height="2532" alt="image" src="https://github.com/user-attachments/assets/2b3218ee-c6f1-4bd3-877e-ef63397c04ec" />
+<img width="1170" height="2532" alt="image" src="https://github.com/user-attachments/assets/51646ec1-abe6-4710-8ec2-bce08d36f18f" />
