@@ -1,14 +1,38 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ToastAndroid, Platform, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { Product } from '@/constants/data';
+import { useCart } from '@/contexts/CartContext';
 
 interface Props {
   product: Product;
 }
 
 export default function ProductCard({ product }: Props) {
+  const { addItem } = useCart();
+
+  const handleAdd = async (e: any) => {
+    e.stopPropagation?.();
+    try {
+      await addItem({
+        id: product.id,
+        name: product.name,
+        unit: product.unit,
+        price: product.price,
+        image: product.image,
+      });
+      const msg = `${product.name} added to cart`;
+      if (Platform.OS === 'android') {
+        ToastAndroid.show(msg, ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Added to cart', msg);
+      }
+    } catch (err) {
+      console.error('Add to cart failed:', err);
+    }
+  };
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -19,7 +43,7 @@ export default function ProductCard({ product }: Props) {
       <Text style={styles.unit}>{product.unit}, Price</Text>
       <View style={styles.footer}>
         <Text style={styles.price}>${product.price.toFixed(2)}</Text>
-        <TouchableOpacity style={styles.addBtn}>
+        <TouchableOpacity style={styles.addBtn} onPress={handleAdd}>
           <Ionicons name="add" size={22} color={Colors.white} />
         </TouchableOpacity>
       </View>

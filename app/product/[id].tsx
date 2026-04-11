@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { PRODUCTS } from '@/constants/data';
+import { useCart } from '@/contexts/CartContext';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +19,25 @@ export default function ProductDetailScreen() {
   const [isFav, setIsFav] = useState(false);
   const [detailOpen, setDetailOpen] = useState(true);
   const [addedToCart, setAddedToCart] = useState(false);
+  const { addItem } = useCart();
+
+  const handleAddToBasket = async () => {
+    try {
+      await addItem(
+        {
+          id: product.id,
+          name: product.name,
+          unit: product.unit,
+          price: product.price,
+          image: product.image,
+        },
+        quantity
+      );
+      setAddedToCart(true);
+    } catch (err) {
+      console.error('Add to cart failed:', err);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -130,14 +150,14 @@ export default function ProductDetailScreen() {
             <Ionicons name="checkmark" size={20} color={Colors.white} />
             <Text style={styles.addedText}>Add to Cart</Text>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/cart' as any)}>
             <Text style={styles.openCart}>Open Cart &gt;</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <TouchableOpacity
           style={styles.basketButton}
-          onPress={() => setAddedToCart(true)}
+          onPress={handleAddToBasket}
         >
           <Text style={styles.basketText}>Add To Basket</Text>
         </TouchableOpacity>

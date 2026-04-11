@@ -1,37 +1,20 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
 import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
-import { PRODUCTS } from '@/constants/data';
-
-interface CartItem {
-  id: string;
-  name: string;
-  unit: string;
-  price: number;
-  image: string;
-  qty: number;
-}
+import { useCart } from '@/contexts/CartContext';
 
 export default function CartScreen() {
-  const [items, setItems] = useState<CartItem[]>(
-    [PRODUCTS[2], PRODUCTS[12], PRODUCTS[0], PRODUCTS[3]].map((p) => ({ ...p, qty: 1 }))
-  );
+  const { items, loading, total, updateQty, removeItem } = useCart();
 
-  const updateQty = (id: string, delta: number) => {
-    setItems((prev) =>
-      prev
-        .map((item) => item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item)
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, styles.center]}>
+        <ActivityIndicator color={Colors.primary} />
+      </SafeAreaView>
     );
-  };
-
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,55 +23,66 @@ export default function CartScreen() {
       </View>
       <View style={styles.headerLine} />
 
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        renderItem={({ item }) => (
-          <View style={styles.cartItem}>
-            <Image source={{ uri: item.image }} style={styles.itemImage} resizeMode="contain" />
-            <View style={styles.itemInfo}>
-              <View style={styles.itemHeader}>
-                <View>
-                  <Text style={styles.itemName}>{item.name}</Text>
-                  <Text style={styles.itemUnit}>{item.unit}, Price</Text>
-                </View>
-                <TouchableOpacity onPress={() => removeItem(item.id)} hitSlop={8}>
-                  <Ionicons name="close" size={22} color={Colors.gray} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.itemBottom}>
-                <View style={styles.qtyRow}>
-                  <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQty(item.id, -1)}>
-                    <Ionicons name="remove" size={18} color={Colors.gray} />
-                  </TouchableOpacity>
-                  <Text style={styles.qtyText}>{item.qty}</Text>
-                  <TouchableOpacity style={[styles.qtyBtn, styles.qtyBtnPlus]} onPress={() => updateQty(item.id, 1)}>
-                    <Ionicons name="add" size={18} color={Colors.primary} />
+      {items.length === 0 ? (
+        <View style={styles.center}>
+          <Ionicons name="cart-outline" size={64} color={Colors.gray} />
+          <Text style={styles.emptyText}>Your cart is empty</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          renderItem={({ item }) => (
+            <View style={styles.cartItem}>
+              <Image source={{ uri: item.image }} style={styles.itemImage} resizeMode="contain" />
+              <View style={styles.itemInfo}>
+                <View style={styles.itemHeader}>
+                  <View>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    <Text style={styles.itemUnit}>{item.unit}, Price</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => removeItem(item.id)} hitSlop={8}>
+                    <Ionicons name="close" size={22} color={Colors.gray} />
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.itemPrice}>${(item.price * item.qty).toFixed(2)}</Text>
+                <View style={styles.itemBottom}>
+                  <View style={styles.qtyRow}>
+                    <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQty(item.id, -1)}>
+                      <Ionicons name="remove" size={18} color={Colors.gray} />
+                    </TouchableOpacity>
+                    <Text style={styles.qtyText}>{item.qty}</Text>
+                    <TouchableOpacity style={[styles.qtyBtn, styles.qtyBtnPlus]} onPress={() => updateQty(item.id, 1)}>
+                      <Ionicons name="add" size={18} color={Colors.primary} />
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.itemPrice}>${(item.price * item.qty).toFixed(2)}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      )}
 
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.checkoutBtn} onPress={() => router.push('/checkout' as any)}>
-          <Text style={styles.checkoutText}>Go to Checkout</Text>
-          <View style={styles.totalBadge}>
-            <Text style={styles.totalBadgeText}>${total.toFixed(2)}</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+      {items.length > 0 && (
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.checkoutBtn} onPress={() => router.push('/checkout' as any)}>
+            <Text style={styles.checkoutText}>Go to Checkout</Text>
+            <View style={styles.totalBadge}>
+              <Text style={styles.totalBadgeText}>${total.toFixed(2)}</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.white },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  emptyText: { fontSize: 16, color: Colors.gray },
   header: { paddingHorizontal: 24, paddingVertical: 16 },
   title: { fontSize: 24, fontWeight: '700', color: Colors.black, textAlign: 'center' },
   headerLine: { height: 1, backgroundColor: Colors.border },
