@@ -34,6 +34,7 @@ export default function HomeScreen() {
             <Ionicons name="location-sharp" size={16} color={Colors.black} />
             <Text style={styles.location}>Dhaka, Banassre</Text>
           </View>
+          <Text style={styles.studentInfo}>Phạm Quang Huy · 23810310347</Text>
         </View>
 
         {/* Search bar */}
@@ -172,6 +173,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.black,
     marginLeft: 4,
+  },
+  studentInfo: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.primary,
   },
   searchBar: {
     flexDirection: 'row',
