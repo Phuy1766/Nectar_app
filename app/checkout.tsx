@@ -1,20 +1,41 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
-
-const CHECKOUT_ROWS = [
-  { label: 'Delivery', value: 'Select Method', icon: null },
-  { label: 'Payment', value: null, icon: 'card' as const },
-  { label: 'Promo Code', value: 'Pick discount', icon: null },
-  { label: 'Total Cost', value: '$13.97', icon: null },
-];
+import { useCart } from '@/contexts/CartContext';
+import { addOrder } from '@/services/storageService';
 
 export default function CheckoutScreen() {
-  const handlePlaceOrder = () => {
-    router.replace('/order-accepted' as any);
+  const { items, total, clearCart } = useCart();
+
+  const handlePlaceOrder = async () => {
+    if (items.length === 0) {
+      Alert.alert('Cart is empty', 'Add some items before placing an order');
+      return;
+    }
+    try {
+      await addOrder({
+        id: `ord_${Date.now()}`,
+        createdAt: Date.now(),
+        items: [...items],
+        total,
+        deliveryMethod: 'Select Method',
+        paymentMethod: 'Card',
+      });
+      await clearCart();
+      router.replace('/order-accepted' as any);
+    } catch (err) {
+      router.replace('/order-failed' as any);
+    }
   };
+
+  const CHECKOUT_ROWS = [
+    { label: 'Delivery', value: 'Select Method', icon: null },
+    { label: 'Payment', value: null, icon: 'card' as const },
+    { label: 'Promo Code', value: 'Pick discount', icon: null },
+    { label: 'Total Cost', value: `$${total.toFixed(2)}`, icon: null },
+  ];
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
