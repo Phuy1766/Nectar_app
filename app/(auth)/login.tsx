@@ -1,14 +1,33 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('imshuvo97@gmail.com');
   const [password, setPassword] = useState('12345678');
   const [showPass, setShowPass] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Missing info', 'Please enter your email and password');
+      return;
+    }
+    try {
+      setSubmitting(true);
+      await login(email.trim(), password);
+      router.replace('/(tabs)');
+    } catch (err) {
+      Alert.alert('Login failed', 'Please try again');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -64,9 +83,14 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             style={styles.loginButton}
-            onPress={() => router.replace('/(tabs)')}
+            onPress={handleLogin}
+            disabled={submitting}
           >
-            <Text style={styles.loginText}>Log In</Text>
+            {submitting ? (
+              <ActivityIndicator color={Colors.white} />
+            ) : (
+              <Text style={styles.loginText}>Log In</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -74,7 +98,7 @@ export default function LoginScreen() {
             onPress={() => router.push('/(auth)/signup')}
           >
             <Text style={styles.signupLabel}>Don't have an account? </Text>
-            <Text style={[styles.signupLabel, { color: Colors.primary }]}>Singup</Text>
+            <Text style={[styles.signupLabel, { color: Colors.primary }]}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
